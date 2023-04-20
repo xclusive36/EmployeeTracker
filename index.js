@@ -27,6 +27,69 @@ const getTableFromDB = async (table) => {
     .catch((err) => console.error(err)); // if connection is unsuccessful, then log the error
 };
 
+const outputTable = async (table) => {
+  // Function to output a table to the console
+  // console.log(departments);
+  let departments = await getTableFromDB("department"); // get the table from the database
+  let roles = await getTableFromDB("role"); // get the table from the database
+
+  roles.forEach((row, index) => {
+    // reordering the keys
+    roles[index] = {
+      id: row.id,
+      title: row.title,
+      department: departments[row["department_id"] - 1]["name"],
+      salary: row.salary,
+    };
+  });
+
+  let employees = await getTableFromDB("employee"); // get the table from the database
+
+  employees.forEach((row, index) => {
+    if (row.manager_id === 0) {
+      // if the manager_id is 0, then
+      row.manager_id = "null"; // set the manager_id to null
+    } else {
+      // if the manager_id is not 0, then
+      row.manager_id = `${employees[row["manager_id"] - 1]["first_name"]} ${
+        employees[row["manager_id"] - 1]["last_name"]
+      }`; // set the manager to the manager's name
+    }
+
+    // add the role information to the employee
+    row.title = roles[row.role_id - 1].title; // create a new key of title from the role table
+    row.department = roles[row.role_id - 1].department; // create a new key of department from the role table
+    row.salary = roles[row.role_id - 1].salary; // create a new key of salary from the role table
+
+    // reordering the keys
+    employees[index] = {
+      id: row.id,
+      first_name: row.first_name,
+      last_name: row.last_name,
+      title: row.title,
+      department: row.department,
+      salary: row.salary,
+      manager: row.manager_id,
+    };
+  });
+
+  if (table === "department") {
+    return (output = cTable.getTable(departments)); // create a table from the rows to create a structured console.log
+  } else if (table === "role") {
+    return (output = cTable.getTable(roles)); // create a table from the rows to create a structured console.log
+  } else if (table === "employee") {
+    return (output = cTable.getTable(employees)); // create a table from the rows to create a structured console.log
+    // console.log(output); // log the rows
+  }
+};
+
+// outputTable("department"); // output the department table
+// console.log(outputTable("department"));
+// outputTable("role"); // output the role table
+// console.log(outputTable("role"));
+// outputTable("employee"); // output the employee table
+// console.log(outputTable("employee"));
+
 // GIVEN a command-line application that accepts user input
 // WHEN I start the application
 // THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
