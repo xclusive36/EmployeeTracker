@@ -91,12 +91,25 @@ class Database {
     }
   }
 
-  async deleteFromEmployee(first_name, last_name) {
+  async updateEmployeeRole(first_name, last_name, role_id, manager_id) {
+    // create a method to update the employee table
+    if (this.connection) {
+      return await this.connection.execute(
+        // execute the query
+        `UPDATE employee SET role_id = '${role_id}', manager_id = '${manager_id}' WHERE first_name = '${first_name}' AND last_name = '${last_name}'` // update the employee table
+      );
+    } else {
+      // if the connection is null
+      throw new Error("Database is not connected"); // throw an error
+    }
+  }
+
+  async deleteEmployee(employee_id) {
     // create a method to delete from the employee table
     if (this.connection) {
       return await this.connection.execute(
         // execute the query
-        `DELETE FROM employee WHERE first_name = '${first_name}' AND last_name = '${last_name}'` // delete from the employee table
+        `DELETE FROM employee WHERE id = '${employee_id}'` // delete from the employee table
       );
     } else {
       // if the connection is null

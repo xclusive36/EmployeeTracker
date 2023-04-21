@@ -29,10 +29,8 @@ const getTableFromDB = async (table) => {
 
 const outputTable = async (table) => {
   // Function to output a table to the console
-  // console.log(departments);
   let departments = await getTableFromDB("department"); // get the table from the database
   let roles = await getTableFromDB("role"); // get the table from the database
-
   roles.forEach((row, index) => {
     // reordering the keys
     roles[index] = {
@@ -100,11 +98,14 @@ const init = async (message = "What would you like to do?", output = "") => {
       choices: [
         "View All Departments",
         "Add Department",
+        // "Delete Department",
         "View All Roles",
         "Add Role",
+        // "Delete Role",
         "View All Employees",
         "Add Employee",
         "Update Employee Role",
+        // "Delete Employee",
         "Quit",
       ],
       default: "view all departments",
@@ -114,22 +115,6 @@ const init = async (message = "What would you like to do?", output = "") => {
     if (answers.menu === "View All Departments") {
       console.clear();
       outputTable("department").then((result) => {
-        init(
-          `What would you like to do? ${answers.menu}\n\n\n${result}\n? What would you like to do?`,
-          result
-        );
-      });
-    } else if (answers.menu === "View All Roles") {
-      console.clear();
-      outputTable("role").then((result) => {
-        init(
-          `What would you like to do? ${answers.menu}\n\n\n${result}\n? What would you like to do?`,
-          result
-        );
-      });
-    } else if (answers.menu === "View All Employees") {
-      console.clear();
-      outputTable("employee").then((result) => {
         init(
           `What would you like to do? ${answers.menu}\n\n\n${result}\n? What would you like to do?`,
           result
@@ -147,8 +132,55 @@ const init = async (message = "What would you like to do?", output = "") => {
         .then(async (answers) => {
           const newDepartmentName = answers.add_department;
           db.insertIntoDepartment(newDepartmentName);
-          init(`Added ${newDepartmentName} to the database\nWhat would you like to do?`);
+          init(
+            `Added ${newDepartmentName} to the database\nWhat would you like to do?`
+          );
         });
+    } else if (answers.menu === "Delete Department") {
+      getTableFromDB("department").then((result) => {
+        let departmentNames = [];
+        result.map((row) => departmentNames.push(row.name));
+        inquirer
+          .prompt([
+            {
+              type: "list",
+              name: "delete_department",
+              message: "Which department to delete?",
+              choices: departmentNames,
+            },
+          ])
+          .then(async (answers) => {
+            const deleteDepartmentName = answers.delete_department;
+            inquirer
+              .prompt([
+                {
+                  type: "confirm",
+                  name: "confirm_delete_department",
+                  message: `Are you sure you want to delete ${deleteDepartmentName}?`,
+                },
+              ])
+              .then(async (answers) => {
+                if (answers.confirm_delete_department) {
+                  db.deleteFromDepartment(deleteDepartmentName);
+                  init(
+                    `Deleted ${deleteDepartmentName} from the database\nWhat would you like to do?`
+                  );
+                } else {
+                  init(
+                    `Did not delete ${deleteDepartmentName} from the database\nWhat would you like to do?`
+                  );
+                }
+              });
+          });
+      });
+    } else if (answers.menu === "View All Roles") {
+      console.clear();
+      outputTable("role").then((result) => {
+        init(
+          `What would you like to do? ${answers.menu}\n\n\n${result}\n? What would you like to do?`,
+          result
+        );
+      });
     } else if (answers.menu === "Add Role") {
       inquirer
         .prompt([
@@ -189,11 +221,58 @@ const init = async (message = "What would you like to do?", output = "") => {
                       (row) => row.name === answers.add_role_department
                     ).id;
                     db.insertIntoRole(newRoleName, newRoleSalary, role_id);
-                    init(`Added ${newRoleName} to the database\nWhat would you like to do?`);
+                    init(
+                      `Added ${newRoleName} to the database\nWhat would you like to do?`
+                    );
                   });
               });
             });
         });
+    } else if (answers.menu === "Delete Role") {
+      getTableFromDB("role").then((result) => {
+        let roleNames = [];
+        result.map((row) => roleNames.push(row.title));
+        inquirer
+          .prompt([
+            {
+              type: "list",
+              name: "delete_role",
+              message: "Which role to delete?",
+              choices: roleNames,
+            },
+          ])
+          .then(async (answers) => {
+            const deleteRoleName = answers.delete_role;
+            inquirer
+              .prompt([
+                {
+                  type: "confirm",
+                  name: "confirm_delete_role",
+                  message: `Are you sure you want to delete ${deleteRoleName}?`,
+                },
+              ])
+              .then(async (answers) => {
+                if (answers.confirm_delete_role) {
+                  db.deleteFromRole(deleteRoleName);
+                  init(
+                    `Deleted ${deleteRoleName} from the database\nWhat would you like to do?`
+                  );
+                } else {
+                  init(
+                    `Did not delete ${deleteRoleName} from the database\nWhat would you like to do?`
+                  );
+                }
+              });
+          });
+      });
+    } else if (answers.menu === "View All Employees") {
+      console.clear();
+      outputTable("employee").then((result) => {
+        init(
+          `What would you like to do? ${answers.menu}\n\n\n${result}\n? What would you like to do?`,
+          result
+        );
+      });
     } else if (answers.menu === "Add Employee") {
       inquirer // get the first name of the employee
         .prompt([
@@ -265,7 +344,9 @@ const init = async (message = "What would you like to do?", output = "") => {
                             role_id,
                             manager_id
                           );
-                          init(`Added ${newFirstName} ${newLastName} to the database\nWhat would you like to do?`);
+                          init(
+                            `Added ${newFirstName} ${newLastName} to the database\nWhat would you like to do?`
+                          );
                         });
                     });
                   });
@@ -274,6 +355,112 @@ const init = async (message = "What would you like to do?", output = "") => {
         });
     } else if (answers.menu === "Update Employee Role") {
       console.clear();
+      getTableFromDB("employee").then((result) => {
+        let employeeNames = [];
+        result.map((row) => {
+          employeeNames.push(`${row.first_name} ${row.last_name}`);
+        });
+        inquirer
+          .prompt([
+            {
+              type: "list",
+              name: "update_employee",
+              message: "Which employee's role do you want to update?",
+              choices: employeeNames,
+            },
+          ])
+          .then(async (answers) => {
+            const splitName = answers.update_employee.split(" ");
+            const employee_id = result.find(
+              (row) =>
+                row.first_name === splitName[0] &&
+                row.last_name === splitName[1]
+            ).id;
+
+            getTableFromDB("role").then((result) => {
+              let roleNames = [];
+              result.map((row) => roleNames.push(row.title));
+              inquirer
+                .prompt([
+                  {
+                    type: "list",
+                    name: "update_role",
+                    message: "What is the employee's new role?",
+                    choices: roleNames,
+                  },
+                ])
+                .then(async (answers) => {
+                  const role_id = result.find(
+                    (row) => row.title === answers.update_role
+                  ).id;
+                  inquirer // get the manager of the employee
+                    .prompt([
+                      {
+                        type: "list",
+                        name: "add_manager",
+                        message: "Who is the employee's manager?",
+                        choices: employeeNames,
+                      },
+                    ])
+                    .then(async (answers) => {
+                      const splitName = answers.add_manager.split(" ");
+                      const manager_id = result.find(
+                        (row) =>
+                          row.first_name === splitName[0] &&
+                          row.last_name === splitName[1]
+                      ).id;
+                      db.updateEmployeeRole(employee_id, role_id, manager_id);
+                      init(
+                        `Updated ${answers.update_employee}'s role to ${answers.update_role}\nWhat would you like to do?`
+                      );
+                    });
+                });
+            });
+          });
+      });
+    } else if (answers.menu === "Delete Employee") {
+      console.clear();
+      getTableFromDB("employee").then((result) => {
+        let employeeNames = [];
+        result.map((row) => {
+          employeeNames.push(`${row.first_name} ${row.last_name}`);
+        });
+        inquirer
+          .prompt([
+            {
+              type: "list",
+              name: "delete_employee",
+              message: "Which employee do you want to delete?",
+              choices: employeeNames,
+            },
+          ])
+          .then(async (answers) => {
+            const splitName = answers.delete_employee.split(" ");
+            const employee_id = result.find(
+              (row) =>
+                row.first_name === splitName[0] &&
+                row.last_name === splitName[1]
+            ).id;
+            inquirer
+              .prompt([
+                {
+                  type: "confirm",
+                  name: "confirm_delete",
+                  message: `Are you sure you want to delete ${answers.delete_employee}?`,
+                },
+              ])
+              .then(async (answers) => {
+                if (answers.confirm_delete) {
+                  db.deleteEmployee(employee_id);
+                  init(
+                    `Deleted ${answers.delete_employee} from the database\nWhat would you like to do?`
+                  );
+                } else {
+                  init("What would you like to do?");
+                }
+              });
+          });
+      });
     } else if (answers.menu === "Quit") {
       db.closeConnection();
       console.clear();
