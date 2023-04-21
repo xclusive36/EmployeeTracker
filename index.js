@@ -90,6 +90,201 @@ const outputTable = async (table) => {
 // outputTable("employee"); // output the employee table
 // console.log(outputTable("employee"));
 
+console.clear();
+const init = async (message = "What would you like to do?", output = "") => {
+  const questions = [
+    {
+      type: "list",
+      name: "menu",
+      message: message,
+      choices: [
+        "View All Departments",
+        "Add Department",
+        "View All Roles",
+        "Add Role",
+        "View All Employees",
+        "Add Employee",
+        "Update Employee Role",
+        "Quit",
+      ],
+      default: "view all departments",
+    },
+  ];
+  inquirer.prompt(questions).then(async (answers) => {
+    if (answers.menu === "View All Departments") {
+      console.clear();
+      outputTable("department").then((result) => {
+        init(
+          `What would you like to do? ${answers.menu}\n\n\n${result}\n? What would you like to do?`,
+          result
+        );
+      });
+    } else if (answers.menu === "View All Roles") {
+      console.clear();
+      outputTable("role").then((result) => {
+        init(
+          `What would you like to do? ${answers.menu}\n\n\n${result}\n? What would you like to do?`,
+          result
+        );
+      });
+    } else if (answers.menu === "View All Employees") {
+      console.clear();
+      outputTable("employee").then((result) => {
+        init(
+          `What would you like to do? ${answers.menu}\n\n\n${result}\n? What would you like to do?`,
+          result
+        );
+      });
+    } else if (answers.menu === "Add Department") {
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "add_department",
+            message: "What is the name of the department?",
+          },
+        ])
+        .then(async (answers) => {
+          const newDepartmentName = answers.add_department;
+          db.insertIntoDepartment(newDepartmentName);
+          init(`Added ${newDepartmentName} to the database\nWhat would you like to do?`);
+        });
+    } else if (answers.menu === "Add Role") {
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "add_role_name",
+            message: "What is the name of the role?",
+          },
+        ])
+        .then(async (answers) => {
+          const newRoleName = answers.add_role_name;
+
+          inquirer
+            .prompt([
+              {
+                type: "number",
+                name: "add_role_salary",
+                message: "What is the salary of the role?",
+              },
+            ])
+            .then(async (answers) => {
+              const newRoleSalary = answers.add_role_salary;
+
+              getTableFromDB("department").then((result) => {
+                let departmentNames = [];
+                result.map((row) => departmentNames.push(row.name));
+                inquirer
+                  .prompt([
+                    {
+                      type: "list",
+                      name: "add_role_department",
+                      message: "Which department does the role belong to?",
+                      choices: departmentNames,
+                    },
+                  ])
+                  .then(async (answers) => {
+                    const role_id = result.find(
+                      (row) => row.name === answers.add_role_department
+                    ).id;
+                    db.insertIntoRole(newRoleName, newRoleSalary, role_id);
+                    init(`Added ${newRoleName} to the database\nWhat would you like to do?`);
+                  });
+              });
+            });
+        });
+    } else if (answers.menu === "Add Employee") {
+      inquirer // get the first name of the employee
+        .prompt([
+          {
+            type: "input",
+            name: "add_first_name",
+            message: "What is the employee's first name?",
+          },
+        ])
+        .then(async (first_answers) => {
+          // get the answer from the first name question
+          const newFirstName = first_answers.add_first_name; // set variable to the answer
+
+          inquirer // get the last name of the employee
+            .prompt([
+              {
+                type: "input",
+                name: "add_last_name",
+                message: "What is the employee's last name?",
+              },
+            ])
+            .then(async (last_answers) => {
+              // get the answer from the last name question
+              const newLastName = last_answers.add_last_name; // set variable to the answer
+
+              getTableFromDB("role").then((result) => {
+                let roleNames = [];
+                result.map((row) => roleNames.push(row.title));
+                inquirer // get the role of the employee
+                  .prompt([
+                    {
+                      type: "list",
+                      name: "add_role",
+                      message: "What is the employee's role?",
+                      choices: roleNames,
+                    },
+                  ])
+                  .then(async (answers) => {
+                    const role_id = result.find(
+                      (row) => row.title === answers.add_role
+                    ).id;
+
+                    getTableFromDB("employee").then((result) => {
+                      let employeeNames = [];
+                      result.map((row) => {
+                        employeeNames.push(
+                          `${row.first_name} ${row.last_name}`
+                        );
+                      });
+                      inquirer // get the role of the employee
+                        .prompt([
+                          {
+                            type: "list",
+                            name: "add_manager",
+                            message: "Who is the employee's manager?",
+                            choices: employeeNames,
+                          },
+                        ])
+                        .then(async (answers) => {
+                          const splitName = answers.add_manager.split(" ");
+                          const manager_id = result.find(
+                            (row) =>
+                              row.first_name === splitName[0] &&
+                              row.last_name === splitName[1]
+                          ).id;
+                          db.insertIntoEmployee(
+                            newFirstName,
+                            newLastName,
+                            role_id,
+                            manager_id
+                          );
+                          init(`Added ${newFirstName} ${newLastName} to the database\nWhat would you like to do?`);
+                        });
+                    });
+                  });
+              });
+            });
+        });
+    } else if (answers.menu === "Update Employee Role") {
+      console.clear();
+    } else if (answers.menu === "Quit") {
+      db.closeConnection();
+      console.clear();
+      console.log("Goodbye!");
+      process.exit();
+    }
+  });
+};
+
+init();
+
 // GIVEN a command-line application that accepts user input
 // WHEN I start the application
 // THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role

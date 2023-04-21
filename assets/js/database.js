@@ -28,50 +28,80 @@ class Database {
 
   async insertIntoDepartment(departmentName) {
     // create a method to insert into the department table
-    return await this.connection.execute(
-      // execute the query
-      `INSERT INTO department (name) VALUES ('${departmentName}')` // insert into the department table
-    );
+    if (this.connection) {
+      return await this.connection.execute(
+        // execute the query
+        `INSERT INTO department (name) VALUES ('${departmentName}')` // insert into the department table with the department name
+      );
+    } else {
+      // if the connection is null
+      throw new Error("Database is not connected"); // throw an error
+    }
   }
 
   async deleteFromDepartment(departmentName) {
     // create a method to delete from the department table
-    return await this.connection.execute(
-      // execute the query
-      `DELETE FROM department WHERE name = '${departmentName}'` // delete from the department table
-    );
+    if (this.connection) {
+      return await this.connection.execute(
+        // execute the query
+        `DELETE FROM department WHERE name = '${departmentName}'` // delete from the department table with the department name
+      );
+    } else {
+      // if the connection is null
+      throw new Error("Database is not connected"); // throw an error
+    }
   }
 
   async insertIntoRole(title, salary, department_id) {
     // create a method to insert into the role table
-    return await this.connection.execute(
-      // execute the query
-      `INSERT INTO role (title, salary, department_id) VALUES ('${title}', '${salary}', '${department_id}')` // insert into the role table
-    );
+    if (this.connection) {
+      return await this.connection.execute(
+        // execute the query
+        `INSERT INTO role (title, salary, department_id) VALUES ('${title}', '${salary}', '${department_id}')` // insert into the role table with the title, salary, and department id
+      );
+    } else {
+      // if the connection is null
+      throw new Error("Database is not connected"); // throw an error
+    }
   }
 
   async deleteFromRole(title) {
     // create a method to delete from the role table
-    return await this.connection.execute(
-      // execute the query
-      `DELETE FROM role WHERE title = '${title}'` // delete from the role table
-    );
+    if (this.connection) {
+      return await this.connection.execute(
+        // execute the query
+        `DELETE FROM role WHERE title = '${title}'` // delete from the role table with the title
+      );
+    } else {
+      // if the connection is null
+      throw new Error("Database is not connected"); // throw an error
+    }
   }
 
   async insertIntoEmployee(first_name, last_name, role_id, manager_id) {
     // create a method to insert into the employee table
-    return await this.connection.execute(
-      // execute the query
-      `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${first_name}', '${last_name}', '${role_id}', '${manager_id}')` // insert into the employee table
-    );
+    if (this.connection) {
+      return await this.connection.execute(
+        // execute the query
+        `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${first_name}', '${last_name}', '${role_id}', '${manager_id}')` // insert into the employee table
+      );
+    } else {
+      // if the connection is null
+      throw new Error("Database is not connected"); // throw an error
+    }
   }
 
   async deleteFromEmployee(first_name, last_name) {
     // create a method to delete from the employee table
-    return await this.connection.execute(
-      // execute the query
-      `DELETE FROM employee WHERE first_name = '${first_name}' AND last_name = '${last_name}'` // delete from the employee table
-    );
+    if (this.connection) {
+      return await this.connection.execute(
+        // execute the query
+        `DELETE FROM employee WHERE first_name = '${first_name}' AND last_name = '${last_name}'` // delete from the employee table
+      );
+    } else {
+      // if the connection is null
+      throw new Error("Database is not connected"); // throw an error
+    }
   }
 
   async closeConnection() {
