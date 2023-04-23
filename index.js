@@ -360,6 +360,7 @@ const init = async (message = "What would you like to do?", output = "") => {
     } else if (answers.menu === "Update Employee Role") {
       console.clear();
       getTableFromDB("employee").then((result) => {
+        const roles = result;
         let employeeNames = [];
         result.map((row) => {
           employeeNames.push(`${row.first_name} ${row.last_name}`);
@@ -410,15 +411,22 @@ const init = async (message = "What would you like to do?", output = "") => {
                     ])
                     .then(async (answers) => {
                       const splitName2 = answers.add_manager.split(" ");
-                      let manager_id = 0;
-                      if (!result === "None") {
-                        manager_id = result.find(
+                      let manager_id;
+                      if (answers.add_manager === "None") {
+                        manager_id = 0;
+                      } else {
+                        manager_id = roles.find(
                           (row) =>
                             row.first_name === splitName2[0] &&
                             row.last_name === splitName2[1]
                         ).id;
                       }
-                      db.updateEmployeeRole(splitName1[0], splitName1[1], role_id, manager_id);
+                      db.updateEmployeeRole(
+                        splitName1[0],
+                        splitName1[1],
+                        role_id,
+                        manager_id
+                      );
                       init(
                         `Updated ${splitName1[0]} ${splitName1[1]}'s role to ${role}\nWhat would you like to do?`
                       );
