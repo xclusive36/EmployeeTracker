@@ -57,3 +57,9 @@ Email: [Email](mailto:xclusive36@gmail.com)
 
 - [Inquirer](https://www.npmjs.com/package/inquirer)  
   Package used to prompt the user with questions and get the answers.
+
+- [console.table](https://www.npmjs.com/package/console.table)
+  Package used to display the data in a table format.
+
+- [dotenv](https://www.npmjs.com/package/dotenv)
+  Package used to hide the mysql password.
