@@ -397,6 +397,7 @@ const init = async (message = "What would you like to do?", output = "") => {
                   const role_id = result.find(
                     (row) => row.title === answers.update_role
                   ).id;
+                  const role = answers.update_role;
                   employeeNames.unshift("None");
                   inquirer // get the manager of the employee
                     .prompt([
@@ -419,7 +420,7 @@ const init = async (message = "What would you like to do?", output = "") => {
                       }
                       db.updateEmployeeRole(splitName1[0], splitName1[1], role_id, manager_id);
                       init(
-                        `Updated ${answers.update_employee}'s role to ${answers.update_role}\nWhat would you like to do?`
+                        `Updated ${splitName1[0]} ${splitName1[1]}'s role to ${role}\nWhat would you like to do?`
                       );
                     });
                 });

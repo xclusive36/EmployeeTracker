@@ -92,7 +92,6 @@ class Database {
   }
 
   async updateEmployeeRole(first_name, last_name, role_id, manager_id) {
-    console.log('BLAH!!!', first_name, last_name, role_id, manager_id);
     // create a method to update the employee table
     if (this.connection) {
       return await this.connection.execute(
