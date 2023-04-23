@@ -20,7 +20,7 @@ This is a Employee Tracker CMS for Node. You may view Departents, Roles, and Emp
 
 ## Video
 
-- [Video]()  
+- [Video](https://drive.google.com/file/d/1yVIwY-Qj7xn-aFTzKOB4gTYLNtF3WVjk/view)  
   Video of the application in use.
 
 ## Installation
