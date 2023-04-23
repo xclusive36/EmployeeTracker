@@ -322,6 +322,7 @@ const init = async (message = "What would you like to do?", output = "") => {
                           `${row.first_name} ${row.last_name}`
                         );
                       });
+                      employeeNames.unshift("None");
                       inquirer // get the role of the employee
                         .prompt([
                           {
@@ -333,11 +334,14 @@ const init = async (message = "What would you like to do?", output = "") => {
                         ])
                         .then(async (answers) => {
                           const splitName = answers.add_manager.split(" ");
-                          const manager_id = result.find(
-                            (row) =>
-                              row.first_name === splitName[0] &&
-                              row.last_name === splitName[1]
-                          ).id;
+                          let manager_id = 0;
+                          if (!result === "None") {
+                            const manager_id = result.find(
+                              (row) =>
+                                row.first_name === splitName[0] &&
+                                row.last_name === splitName[1]
+                            ).id;
+                          }
                           db.insertIntoEmployee(
                             newFirstName,
                             newLastName,
@@ -370,11 +374,11 @@ const init = async (message = "What would you like to do?", output = "") => {
             },
           ])
           .then(async (answers) => {
-            const splitName = answers.update_employee.split(" ");
+            const splitName1 = answers.update_employee.split(" ");
             const employee_id = result.find(
               (row) =>
-                row.first_name === splitName[0] &&
-                row.last_name === splitName[1]
+                row.first_name === splitName1[0] &&
+                row.last_name === splitName1[1]
             ).id;
 
             getTableFromDB("role").then((result) => {
@@ -393,6 +397,7 @@ const init = async (message = "What would you like to do?", output = "") => {
                   const role_id = result.find(
                     (row) => row.title === answers.update_role
                   ).id;
+                  employeeNames.unshift("None");
                   inquirer // get the manager of the employee
                     .prompt([
                       {
@@ -403,13 +408,16 @@ const init = async (message = "What would you like to do?", output = "") => {
                       },
                     ])
                     .then(async (answers) => {
-                      const splitName = answers.add_manager.split(" ");
-                      const manager_id = result.find(
-                        (row) =>
-                          row.first_name === splitName[0] &&
-                          row.last_name === splitName[1]
-                      ).id;
-                      db.updateEmployeeRole(employee_id, role_id, manager_id);
+                      const splitName2 = answers.add_manager.split(" ");
+                      let manager_id = 0;
+                      if (!result === "None") {
+                        manager_id = result.find(
+                          (row) =>
+                            row.first_name === splitName2[0] &&
+                            row.last_name === splitName2[1]
+                        ).id;
+                      }
+                      db.updateEmployeeRole(splitName1[0], splitName1[1], role_id, manager_id);
                       init(
                         `Updated ${answers.update_employee}'s role to ${answers.update_role}\nWhat would you like to do?`
                       );
